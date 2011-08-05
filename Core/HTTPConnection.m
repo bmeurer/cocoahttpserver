@@ -1905,23 +1905,27 @@ static NSMutableArray *recentNonces;
 	// I got a 26% speed improvement - from 1000req/sec to 3800req/sec. Not insignificant.
 	// The culprit? Why, NSDateFormatter, of course!"
 	// 
-	// Thus, we are using a static NSDateFormatter here.
-	
-	static NSDateFormatter *df;
-	
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
+    // We cannot use a static here, since NSDateFormatter is not thread-safe. But we can of course utilize
+    // thread-local storage using NSThread's threadDictionary.
+    
+    static NSString *const HTTPConnectionDateAsStringDateFormatter = @"HTTPConnectionDateAsStringDateFormatter";
+    NSMutableDictionary *td = [[NSThread currentThread] threadDictionary];
+    NSDateFormatter *df = [td objectForKey:HTTPConnectionDateAsStringDateFormatter];
+    if (!df) {
 		
 		// Example: Sun, 06 Nov 1994 08:49:37 GMT
 		
-		df = [[NSDateFormatter alloc] init];
-		[df setFormatterBehavior:NSDateFormatterBehavior10_4];
-		[df setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
-		[df setDateFormat:@"EEE, dd MMM y HH:mm:ss 'GMT'"];
-		[df setLocale:[[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"] autorelease]];
+		df = [[[NSDateFormatter alloc] init] autorelease];
+        if (df) {
+            [df setFormatterBehavior:NSDateFormatterBehavior10_4];
+            [df setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
+            [df setDateFormat:@"EEE, dd MMM y HH:mm:ss 'GMT'"];
+            [df setLocale:[[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"] autorelease]];
+            [td setObject:df forKey:HTTPConnectionDateAsStringDateFormatter];
+        }
 		
 		// For some reason, using zzz in the format string produces GMT+00:00
-	});
+	}
 	
 	return [df stringFromDate:date];
 }
