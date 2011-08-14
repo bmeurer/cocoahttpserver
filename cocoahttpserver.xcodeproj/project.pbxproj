@@ -288,6 +288,7 @@
 		C7A1AB7E13ED46B700CFDFD0 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastUpgradeCheck = 0420;
 				ORGANIZATIONNAME = "Benedikt Meurer";
 			};
 			buildConfigurationList = C7A1AB8113ED46B700CFDFD0 /* Build configuration list for PBXProject "cocoahttpserver" */;
