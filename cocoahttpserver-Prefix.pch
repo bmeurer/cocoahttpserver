@@ -25,6 +25,14 @@
  * SUCH DAMAGE.
  */
 
+#include <Availability.h>
+
+#include <CoreFoundation/CoreFoundation.h>
+
+#if TARGET_OS_IPHONE
+# import <CFNetwork/CFNetwork.h>
+#endif
+
 #ifdef __OBJC__
 # import <Foundation/Foundation.h>
 #endif
